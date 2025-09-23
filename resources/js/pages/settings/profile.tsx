@@ -4,6 +4,7 @@ import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Transition } from '@headlessui/react';
 import { Form, Head, Link, usePage } from '@inertiajs/react';
 
+import AvatarUpload from '@/components/avatar-upload';
 import DeleteUser from '@/components/delete-user';
 import HeadingSmall from '@/components/heading-small';
 import InputError from '@/components/input-error';
@@ -13,6 +14,7 @@ import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 import { edit } from '@/routes/profile';
+import { toast } from 'sonner';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -41,8 +43,20 @@ export default function Profile({
                         description="Update your name and email address"
                     />
 
+                    <div className="flex space-x-2">
+                        <AvatarUpload user={auth.user} />
+                    </div>
+
                     <Form
                         {...ProfileController.update.form()}
+                        onSuccess={() => {
+                            toast.success('Profile updated successfully!');
+                        }}
+                        onError={() => {
+                            toast.error('Error', {
+                                description: 'Something whet wrong!',
+                            });
+                        }}
                         options={{
                             preserveScroll: true,
                         }}
