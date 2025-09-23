@@ -67,7 +67,7 @@ interface AppHeaderProps {
 export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
     const page = usePage<SharedData>();
     const { auth } = page.props;
-    const getInitials = useInitials();
+    const getInitials = useInitials(auth.user.name);
     return (
         <>
             <div className="border-b border-sidebar-border/80">

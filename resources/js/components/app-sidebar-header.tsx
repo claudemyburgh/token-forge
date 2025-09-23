@@ -1,7 +1,7 @@
+import AppearanceSwitch from '@/components/appearance-switch';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { type BreadcrumbItem as BreadcrumbItemType } from '@/types';
-import AppearanceToggleDropdown from '@/components/appearance-dropdown';
 
 export function AppSidebarHeader({
     breadcrumbs = [],
@@ -16,7 +16,7 @@ export function AppSidebarHeader({
                     <Breadcrumbs breadcrumbs={breadcrumbs} />
                 </div>
                 <div className="flex items-center gap-2">
-                    <AppearanceToggleDropdown />
+                    <AppearanceSwitch />
                 </div>
             </div>
         </header>

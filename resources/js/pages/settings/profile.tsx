@@ -42,20 +42,11 @@ export default function Profile({
                         title="Profile information"
                         description="Update your name and email address"
                     />
-
-                    <div className="flex space-x-2">
-                        <AvatarUpload user={auth.user} />
-                    </div>
-
+                    <AvatarUpload user={auth.user} />
                     <Form
                         {...ProfileController.update.form()}
                         onSuccess={() => {
                             toast.success('Profile updated successfully!');
-                        }}
-                        onError={() => {
-                            toast.error('Error', {
-                                description: 'Something whet wrong!',
-                            });
                         }}
                         options={{
                             preserveScroll: true,
