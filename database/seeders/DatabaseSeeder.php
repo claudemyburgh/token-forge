@@ -34,5 +34,7 @@ class DatabaseSeeder extends Seeder
         );
 
         $user->assignRole('Super Admin');
+
+        $this->call(PermissionsSeeder::class);
     }
 }
