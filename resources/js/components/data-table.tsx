@@ -132,6 +132,7 @@ export function DataTable<TData extends { id: number }, TValue>({
             {
                 preserveState: true,
                 replace: true,
+                preserveScroll: true,
             },
         );
     };
@@ -156,6 +157,7 @@ export function DataTable<TData extends { id: number }, TValue>({
             {
                 preserveState: true,
                 replace: true,
+                preserveScroll: true,
             },
         );
     };
@@ -175,6 +177,7 @@ export function DataTable<TData extends { id: number }, TValue>({
             {
                 preserveState: true,
                 replace: true,
+                preserveScroll: true,
             },
         );
     };
@@ -193,6 +196,7 @@ export function DataTable<TData extends { id: number }, TValue>({
             {
                 preserveState: true,
                 replace: true,
+                preserveScroll: true,
             },
         );
     };

@@ -14,6 +14,7 @@ Route::get('/', function () {
 Route::get('dashboard', DashboardIndexController::class)->name('dashboard');
 
 Route::resource('/admin/users', AdminUsersController::class)->names('admin.users');
+Route::post('/admin/users/bulk-delete', [AdminUsersController::class, 'bulkDelete'])->name('admin.users.bulk-delete');
 
 Route::get('admin', AdminDashboardIndexController::class)->name('admin');
 

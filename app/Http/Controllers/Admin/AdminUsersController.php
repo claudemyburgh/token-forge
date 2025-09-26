@@ -30,7 +30,8 @@ class AdminUsersController extends Controller implements HasMiddleware
         $searchableColumns = ['name', 'email'];
         $sortableColumns = ['id', 'name', 'email', 'created_at', 'email_verified_at'];
 
-        $users = $this->buildQuery($query, $request, $searchableColumns, $sortableColumns);
+        $users = $this->buildQuery($query, $request, $searchableColumns, $sortableColumns)
+            ->onEachSide(3);
 
         return Inertia::render('admin/users/index', [
             'users' => $users,
@@ -170,8 +171,14 @@ class AdminUsersController extends Controller implements HasMiddleware
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(User $user)
     {
-        //
+        if ($user->id === auth()->id()) {
+            return redirect()->back()->with('error', 'You cannot delete your own account.');
+        }
+
+        $user->delete();
+
+        return redirect()->back()->with('success', 'User deleted successfully.');
     }
 }

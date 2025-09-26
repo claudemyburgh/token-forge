@@ -73,16 +73,22 @@ export const columns: ColumnDef<User>[] = [
     {
         id: 'actions',
         cell: ({ row }) => {
+            const handleDelete = () => {
+                if (confirm('Are you sure you want to delete this user?')) {
+                    router.delete(adminUserIndex('destroy', { user: row.original.id }));
+                }
+            };
+
             return (
-                <Button variant={`destructive`} size={'xs'}>
-                    Delete {row.original.id}
+                <Button variant={`destructive`} size={'xs'} onClick={handleDelete}>
+                    Delete
                 </Button>
             );
         },
     },
 ];
 
-export default function AdminUsersIndex({ users }: Page<{ users: Paginator<User> }>) {
+export default function AdminUsersIndex({ users, filters }: Page<{ users: Paginator<User>; filters: any }>) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Admin Users" />
@@ -98,12 +104,7 @@ export default function AdminUsersIndex({ users }: Page<{ users: Paginator<User>
                             columns={columns}
                             data={users.data}
                             pagination={users}
-                            // filters={{
-                            //     search: filters.search,
-                            //     sort_field: filters.sort_field,
-                            //     sort_direction: filters.sort_direction,
-                            //     per_page: filters.per_page,
-                            // }}
+                            filters={filters}
                             enableSelection={true}
                             // onBulkAction={handleBulkAction}
                         />
