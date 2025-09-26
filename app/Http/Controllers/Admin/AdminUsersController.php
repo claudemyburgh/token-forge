@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Concerns\DataTable;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -13,6 +14,7 @@ use Inertia\Inertia;
 
 class AdminUsersController extends Controller implements HasMiddleware
 {
+    use DataTable;
     public static function middleware()
     {
         return ['auth', 'verified', 'role:Super Admin'];
@@ -25,41 +27,14 @@ class AdminUsersController extends Controller implements HasMiddleware
     {
         $query = User::query();
 
-        // Search functionality
-        if ($request->filled('search')) {
-            $search = $request->get('search');
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
-            });
-        }
+        $searchableColumns = ['name', 'email'];
+        $sortableColumns = ['id', 'name', 'email', 'created_at', 'email_verified_at'];
 
-        // Sorting functionality
-        $sortField = $request->get('sort_field', 'id');
-        $sortDirection = $request->get('sort_direction', 'asc');
+        $users = $this->buildQuery($query, $request, $searchableColumns, $sortableColumns);
 
-        // Validate sort fields to prevent SQL injection
-        $allowedSortFields = ['id', 'name', 'email', 'created_at', 'email_verified_at'];
-        if (in_array($sortField, $allowedSortFields)) {
-            $query->orderBy($sortField, $sortDirection);
-        } else {
-            $query->orderBy('id', 'asc');
-        }
-
-        // Pagination
-        $perPage = $request->get('per_page', 10);
-        $users = $query->paginate($perPage);
-
-        // Add query parameters to pagination links
-        $users->appends($request->query());
         return Inertia::render('admin/users/index', [
             'users' => $users,
-            'filters' => [
-                'search' => $request->get('search', ''),
-                'sort_field' => $sortField,
-                'sort_direction' => $sortDirection,
-                'per_page' => $perPage,
-            ]
+            'filters' => $this->getFilterParams($request)
         ]);
     }
 
