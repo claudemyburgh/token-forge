@@ -82,11 +82,7 @@ export const columns: ColumnDef<User>[] = [
     },
 ];
 
-export default function AdminUsersIndex({
-    users,
-}: {
-    users: { data: User[] };
-}) {
+export default function AdminUsersIndex({ users }: Page<{ users: Paginator<User> }>) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Admin Users" />
@@ -95,22 +91,13 @@ export default function AdminUsersIndex({
                     <CardHeader>
                         <CardTitle>Users</CardTitle>
                         <CardDescription>Manage users</CardDescription>
-                        <CardAction>
-                            {can('create-users') && <CreateUserModal />}
-                        </CardAction>
+                        <CardAction>{can('create-users') && <CreateUserModal />}</CardAction>
                     </CardHeader>
                     <CardContent>
                         <DataTable
                             columns={columns}
                             data={users.data}
-                            pagination={{
-                                current_page: users.links.current_page,
-                                last_page: users.links.last_page,
-                                per_page: users.links.per_page,
-                                total: users.links.total,
-                                from: users.links.from,
-                                to: users.links.to,
-                            }}
+                            pagination={users}
                             // filters={{
                             //     search: filters.search,
                             //     sort_field: filters.sort_field,

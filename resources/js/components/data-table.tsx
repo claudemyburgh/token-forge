@@ -3,7 +3,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { router } from '@inertiajs/react';
+import { Paginator } from '@/types';
+import { Link, router } from '@inertiajs/react';
 import {
     ColumnDef,
     flexRender,
@@ -11,22 +12,16 @@ import {
     getPaginationRowModel,
     getSortedRowModel,
     SortingState,
-    useReactTable
+    useReactTable,
 } from '@tanstack/react-table';
 import { ChevronDown, ChevronUp, Search, Trash2 } from 'lucide-react';
+import { parse } from 'node:path';
 import { useState } from 'react';
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
     data: TData[];
-    pagination?: {
-        current_page: number;
-        last_page: number;
-        per_page: number;
-        total: number;
-        from: number;
-        to: number;
-    };
+    pagination?: Paginator<TData>;
     filters?: {
         search: string;
         sort_field: string;
@@ -367,101 +362,28 @@ export function DataTable<TData extends { id: number }, TValue>({
             </div>
 
             {/* Pagination */}
-            {pagination ? (
+            {pagination && (
                 <div className="flex items-center justify-between px-2">
                     <div className="text-sm text-muted-foreground">
-                        Showing {pagination.from} to {pagination.to} of{' '}
-                        {pagination.total} results
+                        Showing {pagination.from} to {pagination.to} of {pagination.total} results
                     </div>
 
                     <div className="flex items-center space-x-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() =>
-                                handlePageChange(pagination.current_page - 1)
-                            }
-                            disabled={pagination.current_page <= 1}
-                        >
-                            Previous
-                        </Button>
-
-                        <div className="flex items-center space-x-1">
-                            {Array.from(
-                                { length: Math.min(5, pagination.last_page) },
-                                (_, i) => {
-                                    let pageNumber;
-
-                                    if (pagination.last_page <= 5) {
-                                        pageNumber = i + 1;
-                                    } else if (pagination.current_page <= 3) {
-                                        pageNumber = i + 1;
-                                    } else if (
-                                        pagination.current_page >=
-                                        pagination.last_page - 2
-                                    ) {
-                                        pageNumber =
-                                            pagination.last_page - 4 + i;
-                                    } else {
-                                        pageNumber =
-                                            pagination.current_page - 2 + i;
-                                    }
-
-                                    return (
-                                        <Button
-                                            key={pageNumber}
-                                            variant={
-                                                pageNumber ===
-                                                pagination.current_page
-                                                    ? 'default'
-                                                    : 'outline'
-                                            }
-                                            size="sm"
-                                            onClick={() =>
-                                                handlePageChange(pageNumber)
-                                            }
-                                            className="h-8 w-8 p-0"
-                                        >
-                                            {pageNumber}
-                                        </Button>
-                                    );
-                                },
-                            )}
-                        </div>
-
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() =>
-                                handlePageChange(pagination.current_page + 1)
-                            }
-                            disabled={
-                                pagination.current_page >= pagination.last_page
-                            }
-                        >
-                            Next
-                        </Button>
+                        {pagination.links.map((link, index) => (
+                            <Button
+                                key={index}
+                                variant={link.active ? 'default' : 'outline'}
+                                size="sm"
+                                asChild
+                                disabled={!link.url}
+                            >
+                                <Link
+                                    href={link.url || ''}
+                                    dangerouslySetInnerHTML={{ __html: link.label }}
+                                />
+                            </Button>
+                        ))}
                     </div>
-                </div>
-            ) : (
-                /* Client-side pagination fallback */
-                <div className="flex items-center justify-end space-x-2 py-4">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => table.previousPage()}
-                        disabled={!table.getCanPreviousPage()}
-                    >
-                        Previous
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => table.nextPage()}
-                        disabled={!table.getCanNextPage()}
-                    >
-                        Next
-                    </Button>
                 </div>
             )}
         </div>
