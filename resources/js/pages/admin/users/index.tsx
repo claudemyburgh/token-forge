@@ -56,7 +56,7 @@ export default function AdminUsersIndex({
                         <CardTitle>Users</CardTitle>
                         <CardDescription>Manage users</CardDescription>
                         <CardAction>
-                            {can('create user') && <CreateUserModal />}
+                            {can('create-users') && <CreateUserModal />}
                         </CardAction>
                     </CardHeader>
                     <CardContent>

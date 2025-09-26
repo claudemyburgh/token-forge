@@ -69,7 +69,7 @@ export function AppSidebar() {
 
             <SidebarContent>
                 <NavMain items={mainNavItems} label={`Platform`} />
-                {can('edit user') && (
+                {can('edit-users') && (
                     <NavMain items={adminNavItems} label={`Administrator`} />
                 )}
             </SidebarContent>
