@@ -21,11 +21,96 @@ class AdminUsersController extends Controller implements HasMiddleware
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        $query = User::query();
+
+        // Search functionality
+        if ($request->filled('search')) {
+            $search = $request->get('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        // Sorting functionality
+        $sortField = $request->get('sort_field', 'id');
+        $sortDirection = $request->get('sort_direction', 'asc');
+
+        // Validate sort fields to prevent SQL injection
+        $allowedSortFields = ['id', 'name', 'email', 'created_at', 'email_verified_at'];
+        if (in_array($sortField, $allowedSortFields)) {
+            $query->orderBy($sortField, $sortDirection);
+        } else {
+            $query->orderBy('id', 'asc');
+        }
+
+        // Pagination
+        $perPage = $request->get('per_page', 10);
+        $users = $query->paginate($perPage);
+
+        // Add query parameters to pagination links
+        $users->appends($request->query());
         return Inertia::render('admin/users/index', [
-            'users' => User::paginate()
+            'users' => $users,
+            'filters' => [
+                'search' => $request->get('search', ''),
+                'sort_field' => $sortField,
+                'sort_direction' => $sortDirection,
+                'per_page' => $perPage,
+            ]
         ]);
+    }
+
+    public function bulkDelete(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:users,id'
+        ]);
+
+        // Prevent deleting current user
+        $userIds = array_filter($request->ids, function ($id) {
+            return $id !== auth()->id();
+        });
+
+        User::whereIn('id', $userIds)->delete();
+
+        return redirect()->back()->with('success', 'Users deleted successfully.');
+    }
+
+    public function bulkAction(Request $request)
+    {
+        $request->validate([
+            'action' => 'required|string|in:delete,activate,deactivate',
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:users,id'
+        ]);
+
+        $userIds = array_filter($request->ids, function ($id) {
+            return $id !== auth()->id();
+        });
+
+        switch ($request->action) {
+            case 'delete':
+                User::whereIn('id', $userIds)->delete();
+                $message = 'Users deleted successfully.';
+                break;
+            default:
+//            case 'activate':
+//                User::whereIn('id', $userIds)->update(['is_active' => true]);
+//                $message = 'Users activated successfully.';
+//                break;
+//            case 'deactivate':
+//                User::whereIn('id', $userIds)->update(['is_active' => false]);
+//                $message = 'Users deactivated successfully.';
+//                break;
+//            default:
+                return redirect()->back()->with('error', 'Invalid action.');
+        }
+
+        return redirect()->back()->with('success', $message);
     }
 
     /**
