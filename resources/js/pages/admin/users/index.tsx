@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { columns, User } from "./columns"
 import { DataTable } from "@/components/ui/data-table"
@@ -39,3 +40,4 @@ const AdminUsersPage = ({ users: initialUsers }: AdminUsersPageProps) => {
 };
 
 export default AdminUsersPage;
+

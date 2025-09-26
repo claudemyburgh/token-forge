@@ -10,15 +10,16 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import { can } from '@/lib/can';
 import { dashboard } from '@/routes';
+import { index as adminUserIndex } from '@/routes/admin/users';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
 import {
-    BookOpen,
-    Folder,
     HeadsetIcon,
     LayoutGrid,
     MailIcon,
+    UsersRoundIcon,
 } from 'lucide-react';
 import AppLogo from './app-logo';
 
@@ -27,6 +28,14 @@ const mainNavItems: NavItem[] = [
         title: 'Dashboard',
         href: dashboard(),
         icon: LayoutGrid,
+    },
+];
+
+const adminNavItems: NavItem[] = [
+    {
+        title: 'Users',
+        href: adminUserIndex(),
+        icon: UsersRoundIcon,
     },
 ];
 
@@ -59,7 +68,10 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                <NavMain items={mainNavItems} label={`Platform`} />
+                {can('edit user') && (
+                    <NavMain items={adminNavItems} label={`Administrator`} />
+                )}
             </SidebarContent>
 
             <SidebarFooter>
