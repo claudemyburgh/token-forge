@@ -23,7 +23,6 @@ class AdminUsersController extends Controller implements HasMiddleware
      */
     public function index()
     {
-
         return Inertia::render('admin/users/index', [
             'users' => User::paginate()
         ]);
