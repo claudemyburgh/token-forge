@@ -1,27 +1,12 @@
-import {
-    Card,
-    CardAction,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card';
-import {
-    Table,
-    TableBody,
-    TableCaption,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 
 import { type BreadcrumbItem, User } from '@/types';
 
 import { Button } from '@/components/ui/button';
-import { Head, usePage } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import { BadgeXIcon, EyeIcon, Trash2Icon, VerifiedIcon } from 'lucide-react';
 
 import CreateUserModal from '@/components/parts/create-user-model';
@@ -47,8 +32,6 @@ export default function AdminUsersIndex({
 }: {
     users: { data: User[] };
 }) {
-    const { auth } = usePage().props;
-
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Admin Users" />
