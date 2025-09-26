@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\RolesEnum;
 use App\Observers\UserObserver;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -52,7 +53,7 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail
      *
      * @var array
      */
-    protected $appends = ['avatar', 'avatar_small'];
+    protected $appends = ['avatar', 'avatar_small', 'is_super_admin'];
 
     public function getAvatarAttribute(): string
     {
@@ -113,6 +114,15 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail
             ->quality(95)
             ->optimize()
             ->nonQueued();
+    }
+
+
+    /**
+     * @return bool
+     */
+    public function getIsSuperAdminAttribute(): bool
+    {
+        return $this->hasRole(RolesEnum::SUPER_ADMIN->value);
     }
 
     /**

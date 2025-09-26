@@ -71,6 +71,7 @@ export default function AdminUsersIndex({
                                         Name
                                     </TableHead>
                                     <TableHead>Email Address</TableHead>
+                                    <TableHead>Role</TableHead>
                                     <TableHead>Email Verified</TableHead>
                                     <TableHead>Created At</TableHead>
                                     <TableHead className="text-right">
@@ -96,6 +97,7 @@ export default function AdminUsersIndex({
                                             {user.name}
                                         </TableCell>
                                         <TableCell>{user.email}</TableCell>
+                                        <TableCell>Admin</TableCell>
                                         <TableCell>
                                             {user.email_verified_at ? (
                                                 <Badge
