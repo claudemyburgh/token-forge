@@ -1,8 +1,8 @@
 import StatCard from '@/components/parts/stat-card';
 import AppLayout from '@/layouts/app-layout';
-import {dashboard} from '@/routes';
-import type {BreadcrumbItem} from '@/types';
-import {Head} from '@inertiajs/react';
+import { dashboard } from '@/routes';
+import type { BreadcrumbItem } from '@/types';
+import { Head } from '@inertiajs/react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
