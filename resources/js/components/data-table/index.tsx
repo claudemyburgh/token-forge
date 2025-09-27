@@ -14,7 +14,7 @@ import {
 } from '@tanstack/react-table';
 import { ChevronDown, Settings2 } from 'lucide-react';
 import * as React from 'react';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -51,33 +51,12 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { useDebounce } from '@/hooks/use-debounce';
+import { Paginated } from '@/types';
 import { router } from '@inertiajs/react';
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
-    data: {
-        data: TData[];
-        links: {
-            first: string;
-            last: string;
-            prev: string | null;
-            next: string | null;
-        };
-        meta: {
-            current_page: number;
-            from: number;
-            last_page: number;
-            links: {
-                url: string | null;
-                label: string;
-                active: boolean;
-            }[];
-            path: string;
-            per_page: number;
-            to: number;
-            total: number;
-        };
-    };
+    data: Paginated<TData>;
 }
 
 export function DataTable<TData, TValue>({
@@ -112,30 +91,35 @@ export function DataTable<TData, TValue>({
 
     const selectedRowsCount = table.getFilteredSelectedRowModel().rows.length;
 
-    const [search, setSearch] = React.useState(route().params.search || '');
+    const [search, setSearch] = React.useState(
+        new URLSearchParams(window.location.search).get('search') || '',
+    );
     const debouncedSearch = useDebounce(search, 500);
+    const isInitialMount = useRef(true);
 
     useEffect(() => {
+        if (isInitialMount.current) {
+            isInitialMount.current = false;
+            return;
+        }
+
+        const params = new URLSearchParams(window.location.search);
         if (debouncedSearch) {
-            router.get(
-                paginatedData.meta.path,
-                {
-                    ...route().params,
-                    search: debouncedSearch,
-                },
-                {
-                    preserveState: true,
-                    replace: true,
-                },
-            );
-        } else if (route().params.search) {
-            const { search, ...rest } = route().params;
-            router.get(paginatedData.meta.path, rest, {
+            params.set('search', debouncedSearch);
+        } else {
+            params.delete('search');
+        }
+        params.delete('page');
+
+        router.get(
+            paginatedData.meta.path,
+            Object.fromEntries(params.entries()),
+            {
                 preserveState: true,
                 replace: true,
-            });
-        }
-    }, [debouncedSearch]);
+            },
+        );
+    }, [debouncedSearch, paginatedData.meta.path]);
 
     return (
         <div className="w-full space-y-4">
@@ -257,12 +241,14 @@ export function DataTable<TData, TValue>({
                         <Select
                             value={`${paginatedData.meta.per_page}`}
                             onValueChange={(value) => {
+                                const params = new URLSearchParams(
+                                    window.location.search,
+                                );
+                                params.set('per_page', value);
+                                params.delete('page');
                                 router.get(
                                     paginatedData.meta.path,
-                                    {
-                                        ...route().params,
-                                        per_page: value,
-                                    },
+                                    Object.fromEntries(params.entries()),
                                     {
                                         preserveState: true,
                                         replace: true,

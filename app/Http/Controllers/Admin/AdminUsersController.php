@@ -22,10 +22,19 @@ class AdminUsersController extends Controller implements HasMiddleware
     /**
      * Display a listing of the resource.
      */
-    public function index(User $user)
+    public function index(Request $request)
     {
         return Inertia::render('admin/users/index', [
-            'users' => new UserCollection($user->with('roles', 'permissions')->paginate())
+            'users' => new UserCollection(
+                User::query()
+                    ->with('roles', 'permissions')
+                    ->when($request->input('search'), function ($query, $search) {
+                        $query->where('name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%");
+                    })
+                    ->paginate($request->input('per_page', 15))
+                    ->withQueryString()
+            ),
         ]);
     }
 
