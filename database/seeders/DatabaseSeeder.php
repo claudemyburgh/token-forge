@@ -6,6 +6,7 @@ use App\Enums\RolesEnum;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -21,6 +22,16 @@ class DatabaseSeeder extends Seeder
 
         foreach (RolesEnum::values() as $roleName) {
             Role::firstOrCreate(['name' => $roleName]);
+        }
+
+        $permissions = ['create-users', 'view-users', 'update-users', 'delete-users'];
+
+        $superAdminRole = Role::where('name', 'Super Admin')->first();
+
+        foreach ($permissions as $permission) {
+            Permission::create(['name' => $permission, 'guard_name' => 'web']);
+            Permission::create(['name' => $permission, 'guard_name' => 'api']);
+            $superAdminRole->givePermissionTo($permission);
         }
 
 

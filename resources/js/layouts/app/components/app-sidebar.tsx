@@ -11,7 +11,7 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { can } from '@/lib/can';
-import { dashboard } from '@/routes';
+import { admin, dashboard } from '@/routes';
 import { index as adminUserIndex } from '@/routes/admin/users';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
@@ -32,6 +32,11 @@ const mainNavItems: NavItem[] = [
 ];
 
 const adminNavItems: NavItem[] = [
+    {
+        title: 'Administration',
+        href: admin(),
+        icon: UsersRoundIcon,
+    },
     {
         title: 'Users',
         href: adminUserIndex(),
@@ -68,9 +73,10 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} label={`Platform`} />
-                {can('edit-users') && (
+                {can('view-users') ? (
                     <NavMain items={adminNavItems} label={`Administrator`} />
+                ) : (
+                    <NavMain items={mainNavItems} label={`Platform`} />
                 )}
             </SidebarContent>
 
