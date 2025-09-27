@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserCollection;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
@@ -21,10 +22,10 @@ class AdminUsersController extends Controller implements HasMiddleware
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(User $user)
     {
         return Inertia::render('admin/users/index', [
-            'users' => User::paginate()
+            'users' => new UserCollection($user->with('roles', 'permissions')->paginate())
         ]);
     }
 
