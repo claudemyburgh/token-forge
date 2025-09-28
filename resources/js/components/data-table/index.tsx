@@ -12,7 +12,7 @@ import {
     useReactTable,
     type VisibilityState,
 } from '@tanstack/react-table';
-import { ChevronDown, Settings2 } from 'lucide-react';
+import { ChevronDown, Settings2, X } from 'lucide-react';
 import * as React from 'react';
 import { useEffect, useRef } from 'react';
 
@@ -57,11 +57,19 @@ import { router } from '@inertiajs/react';
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
     data: Paginated<TData>;
+    roles: string[];
+    filters: {
+        search?: string;
+        roles?: string[];
+        per_page?: string;
+    };
 }
 
 export function DataTable<TData, TValue>({
     columns,
     data: paginatedData,
+    roles,
+    filters,
 }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = React.useState<SortingState>([]);
     const [columnFilters, setColumnFilters] =
@@ -91,9 +99,7 @@ export function DataTable<TData, TValue>({
 
     const selectedRowsCount = table.getFilteredSelectedRowModel().rows.length;
 
-    const [search, setSearch] = React.useState(
-        new URLSearchParams(window.location.search).get('search') || '',
-    );
+    const [search, setSearch] = React.useState(filters.search || '');
     const debouncedSearch = useDebounce(search, 500);
     const isInitialMount = useRef(true);
 
@@ -121,6 +127,39 @@ export function DataTable<TData, TValue>({
         );
     }, [debouncedSearch, paginatedData.meta.path]);
 
+    const handleFilterChange = (
+        key: 'roles' | 'per_page',
+        value: string | string[],
+    ) => {
+        const params = new URLSearchParams(window.location.search);
+        params.delete('page');
+
+        if (Array.isArray(value)) {
+            params.delete(`${key}[]`);
+            value.forEach((v) => params.append(`${key}[]`, v));
+        } else if (value && value !== 'all') {
+            params.set(key, value);
+        } else {
+            params.delete(key);
+            params.delete(`${key}[]`);
+        }
+
+        router.get(
+            paginatedData.meta.path,
+            Object.fromEntries(params.entries()),
+            {
+                preserveState: true,
+                replace: true,
+            },
+        );
+    };
+
+    const handleReset = () => {
+        router.get(paginatedData.meta.path);
+    };
+
+    const isFiltered = !!(filters.search || filters.roles?.length);
+
     return (
         <div className="w-full space-y-4">
             <div className="flex items-center justify-between">
@@ -133,6 +172,35 @@ export function DataTable<TData, TValue>({
                         }
                         className="h-8 w-[150px] lg:w-[250px]"
                     />
+                    <Select
+                        value={filters.roles?.[0] || 'all'}
+                        onValueChange={(value) =>
+                            handleFilterChange('roles', value)
+                        }
+                    >
+                        <SelectTrigger className="h-8 w-[120px]">
+                            <SelectValue placeholder="Role" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All Roles</SelectItem>
+                            {roles.map((role) => (
+                                <SelectItem key={role} value={role}>
+                                    {role}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+
+                    {isFiltered && (
+                        <Button
+                            variant="ghost"
+                            onClick={handleReset}
+                            className="h-8 px-2 lg:px-3"
+                        >
+                            Reset
+                            <X className="ml-2 h-4 w-4" />
+                        </Button>
+                    )}
                 </div>
 
                 <div className="flex items-center space-x-2">
@@ -240,21 +308,9 @@ export function DataTable<TData, TValue>({
                         <p className="text-sm font-medium">Rows per page</p>
                         <Select
                             value={`${paginatedData.meta.per_page}`}
-                            onValueChange={(value) => {
-                                const params = new URLSearchParams(
-                                    window.location.search,
-                                );
-                                params.set('per_page', value);
-                                params.delete('page');
-                                router.get(
-                                    paginatedData.meta.path,
-                                    Object.fromEntries(params.entries()),
-                                    {
-                                        preserveState: true,
-                                        replace: true,
-                                    },
-                                );
-                            }}
+                            onValueChange={(value) =>
+                                handleFilterChange('per_page', value)
+                            }
                         >
                             <SelectTrigger className="h-8 w-[70px]">
                                 <SelectValue

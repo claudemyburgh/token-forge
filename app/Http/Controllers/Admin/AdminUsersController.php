@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Enums\RolesEnum;
 use App\Http\Resources\UserCollection;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -32,9 +33,15 @@ class AdminUsersController extends Controller implements HasMiddleware
                         $query->where('name', 'like', "%{$search}%")
                             ->orWhere('email', 'like', "%{$search}%");
                     })
+                    ->when($request->input('roles'), function ($query, $roles) {
+                        $query->whereHas('roles', fn ($q) => $q->whereIn('name', $roles));
+                    })
                     ->paginate($request->input('per_page', 15))
+                    ->onEachSide(5)
                     ->withQueryString()
             ),
+            'roles' => RolesEnum::values(),
+            'filters' => $request->only(['search', 'roles', 'per_page']),
         ]);
     }
 

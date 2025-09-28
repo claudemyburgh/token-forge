@@ -17,13 +17,32 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function AdminUsersIndex({ users }: { users: Paginated<User> }) {
+interface AdminUsersIndexProps {
+    users: Paginated<User>;
+    roles: string[];
+    filters: {
+        search?: string;
+        roles?: string[];
+        per_page?: string;
+    };
+}
+
+export default function AdminUsersIndex({
+    users,
+    roles,
+    filters,
+}: AdminUsersIndexProps) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Admistration Users" />
 
             <div className="p-6">
-                <DataTable columns={columns} data={users} />
+                <DataTable
+                    columns={columns}
+                    data={users}
+                    roles={roles}
+                    filters={filters}
+                />
             </div>
         </AppLayout>
     );
